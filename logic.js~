@@ -1,0 +1,80 @@
+var connects = [];
+var value = NaN;
+var owner = owner;
+var name = name;
+var activates = 0;
+var monitor = 0;
+function connect(inputs)
+	{
+		if (typeof(inputs) != typeof([]))
+			{
+				inputs = [inputs];
+			}
+		for(var i =0; i<inputs.length; i++)
+			{
+			connects = connects.concat(inputs[i]);
+			}
+	}
+function set (value)
+	{
+		if (value == NaN)
+			{
+				return;
+			}
+		var value = value
+		if (activates == 1)
+			{
+				owner.evaluate();
+			}
+		if (monitor == 1)
+			{
+				console.log("connector %s-%s to %d",owner,name,value);
+			
+			for (con in connects)
+				{
+					con.set(value);
+				}
+class LC:
+	def __init__(self,name):
+		self.name = name
+	def evaluate(self):	return
+class Not (LC):
+	def __init__(self, name):
+		LC.__init__(self, name)
+		self.A = Connector(self, 'A', activates =1)
+		self.B = Connector(self, 'B')
+	def evaluate(self):
+		self.B.set(not self.A.value)
+class Gate2 (LC) :  # two input gates. Inputs A, B. Output C.
+   def __init__ (self, name) :
+      LC.__init__ (self, name)
+      self.A = Connector(self,'A',activates=1)
+      self.B = Connector(self,'B',activates=1)
+      self.C = Connector(self,'C')
+class And (Gate2) :       # two input AND Gate
+   def __init__ (self, name) :
+      Gate2.__init__ (self, name)
+
+   def evaluate (self) : self.C.set(self.A.value and self.B.value)
+   
+class Or (Gate2) :         # two input OR gate.
+   def __init__ (self, name) :
+      Gate2.__init__ (self, name)
+
+   def evaluate (self) : self.C.set(self.A.value or self.B.value)
+
+class Xor (Gate2) :
+   def __init__ (self, name) :
+      Gate2.__init__ (self, name)
+      self.A1 = And("A1") # See circuit drawing to follow connections
+      self.A2 = And("A2")
+      self.I1 = Not("I1")
+      self.I2 = Not("I2")
+      self.O1 = Or ("O1")
+      self.A.connect    ([ self.A1.A, self.I2.A])
+      self.B.connect    ([ self.I1.A, self.A2.A])
+      self.I1.B.connect ([ self.A1.B ])
+      self.I2.B.connect ([ self.A2.B ])
+      self.A1.C.connect ([ self.O1.A ])
+      self.A2.C.connect ([ self.O1.B ])
+      self.O1.C.connect ([ self.C ])
